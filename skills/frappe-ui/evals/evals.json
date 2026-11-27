@@ -1,0 +1,27 @@
+{
+  "skill_name": "frappe-ui",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In an existing Frappe UI 1.x app using createListResource, show how to render loading/error, reload after changing filters, and update the status of a selected ToDo. Keep the existing API.",
+      "expected_output": "Uses nested list state, update then reload, and awaited setValue.submit.",
+      "files": [],
+      "assertions": [
+        "Reads nested list loading and error state",
+        "Calls update before reload",
+        "Uses awaited setValue.submit with selected row name"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "In a standalone Frappe UI 1.x app, give the official links for chart States, Stepper, ThemeSwitcher, and parked ListView. Explain what to import for a new stable list and how to focus and select existing input text when opening a rename dialog.",
+      "expected_output": "Gives the four exact documentation URLs, distinguishes stable List from parked ListView, and uses v-focus:autoselect.",
+      "files": [],
+      "assertions": [
+        "Locates all four official documentation pages",
+        "Distinguishes stable List from parked ListView",
+        "Uses the v-focus:autoselect directive"
+      ]
+    }
+  ]
+}

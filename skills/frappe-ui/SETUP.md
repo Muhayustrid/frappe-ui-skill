@@ -1,5 +1,10 @@
 # Project setup
 
+Use this file when you create a project, or when an existing app has no working
+frappe-ui build yet. Inside an existing app, check its installed version first
+([SKILL.md](SKILL.md) step 1) and read the installed package's own readme for
+0.1.x.
+
 ## Versions to pin
 
 `npm create vite@latest` currently scaffolds Tailwind v4, which frappe-ui 1.0.x does not support. After scaffolding, uninstall the Tailwind defaults and pin what frappe-ui expects:
@@ -11,7 +16,7 @@ npm install frappe-ui vue-router@^4
 ```
 
 - **Tailwind v3.** frappe-ui ships a Tailwind v3 preset (`darkMode`, `theme`, `plugins`, `safelist`). Tailwind v4 ignores that shape and the design tokens never load.
-- **Vite 7, Node `>=20.19.0`.** frappe-ui builds and tests against `vite@^7.3.2` (`package.json` `engines`, `devDependencies`).
+- **Vite 7, Node `>=20.19.0`.** frappe-ui builds and tests against `vite@^7.3.2`, and its `engines` requires Node `>=20.19.0`. The peer range is wider (`vite >=5`), but pin `^7` to match the version the library is tested on.
 - **`vue-router`.** It is a peer dependency (`vue-router@^4.1.6`). `<Button :route>`, `Breadcrumbs`, `SidebarItem`, `Tabs` and `PageHeaderBackButton` render `RouterLink` or call `useRouter()`, and warn without a router instance.
 - **Icons need no plugin.** frappe-ui draws icons from `lucide-<name>` class names, which the Tailwind plugin generates as CSS masks. The `lucideIcons` Vite sub-plugin is **off by default**; pass `lucideIcons: true` only if the app itself imports `~icons/lucide/*` or writes `<LucideX />` tags. `unplugin-icons`, `unplugin-auto-import`, `unplugin-vue-components` and `lucide-static` are already frappe-ui dependencies, so install none of them yourself.
 - **Tailwind is a peer dependency** (`tailwindcss@>=3.4.2 <4`), and so are `vite` and `vitepress` (both optional). Install Tailwind in the app.
@@ -19,7 +24,7 @@ npm install frappe-ui vue-router@^4
 
 ## Import from the package `exports` subpaths
 
-The exported subpaths are `frappe-ui`, `frappe-ui/list`, `frappe-ui/editor`, `frappe-ui/code-editor`, `frappe-ui/charts`, `frappe-ui/icons`, `frappe-ui/experimental`, `frappe-ui/tailwind`, `frappe-ui/vite`, `frappe-ui/vite/lucideIconsPlugin`, `frappe-ui/vitepress`, `frappe-ui/style.css` and `frappe-ui/tsconfig.base.json`. The two most common mistakes:
+The exported subpaths are `frappe-ui`, `frappe-ui/list`, `frappe-ui/editor`, `frappe-ui/code-editor`, `frappe-ui/charts`, `frappe-ui/icons`, `frappe-ui/experimental`, `frappe-ui/tailwind`, `frappe-ui/tailwind/tokens`, `frappe-ui/vite`, `frappe-ui/vite/lucideIconsPlugin`, `frappe-ui/vitepress`, `frappe-ui/style.css` and `frappe-ui/tsconfig.base.json`. The two most common mistakes:
 
 | Mistake | Use this instead |
 |---|---|
@@ -37,13 +42,13 @@ import frappeui from 'frappe-ui/vite'
 
 export default defineConfig({
   plugins: [
-    frappeui({ frontendRoute: '/todo' }),
+    frappeui({ frontendRoute: '/my-app' }),
     vue(),
   ],
 })
 ```
 
-Every `frappeui()` sub-plugin except `lucideIcons` and `frappeTypes` is on by default; pass `false` to turn one off, or an options object to configure it. `frontendRoute` is the route the app is served on. It drives the dev-server site banner and the inferred production `indexHtmlPath`.
+Every `frappeui()` sub-plugin except `lucideIcons` and `frappeTypes` is on by default; pass `false` to turn one off, or an options object to configure it. `frontendRoute` is the URL path where Frappe serves the built app — `'/my-app'` above is the placeholder, not a default. Point it at the app's real route; it drives the dev-server site banner and the inferred production `indexHtmlPath`.
 
 `frappeProxy`, `jinjaBootData` and `buildConfig` assume a Frappe site around the app. For a prototype that has no Frappe backend, turn those three off:
 

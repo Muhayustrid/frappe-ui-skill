@@ -1,0 +1,190 @@
+<!-- Upstream: https://github.com/frappe/frappe-ui/blob/b435c66b51c0b19425a2a049b43e3ef2e308a8ab/src/charts/docs/HeatmapChart.md -->
+
+# HeatmapChart
+
+Shows a value across two dimensions, with one cell for each pair.
+
+## Values in cells
+
+`x`, `y` and `value` name a cell's column, row and value, so the data has one
+row per cell. `showDataLabels` prints values inside the cells and hides any label
+that would overlap its neighbor.
+
+
+
+## Printing the categories
+
+`xAxis.format` and `yAxis.format` format the categories of their axis, on the
+axis and in the tooltip. Each gets the raw value from the row, not the category
+string, so a date column can print as `Mar`.
+
+They change how a category prints, not what it is. Two categories that print the
+same stay two cells, and `select` still reports the raw value.
+
+
+
+## Signed data
+
+Use the `diverging` ramp for data with positive and negative values. It is
+centered on zero. Set `min` and `max` to fix the scale, so the colors mean the
+same thing across reloads.
+
+
+
+## API reference
+
+```ts
+const propsData = [
+  {
+    name: 'title',
+    description: 'Heads the card. Left out, the chart draws no header row at all.',
+    required: false,
+    type: 'string'
+  },
+  {
+    name: 'subtitle',
+    description: 'A second line under the title, e.g. the period the numbers cover.',
+    required: false,
+    type: 'string'
+  },
+  {
+    name: 'dir',
+    description: 'Forces layout direction; defaults to document.documentElement.dir',
+    required: false,
+    type: 'ChartDir'
+  },
+  {
+    name: 'loading',
+    description: 'Draws the placeholder in place of the plot, for data still on its way.',
+    required: false,
+    type: 'boolean'
+  },
+  {
+    name: 'error',
+    description: 'Puts the chart in its error state and prints this message under it. Data\nthe chart cannot draw shows the empty state, not this one.',
+    required: false,
+    type: 'string | null'
+  },
+  {
+    name: 'data',
+    description: 'One row per cell.',
+    required: true,
+    type: 'Record<string, any>[]'
+  },
+  {
+    name: 'x',
+    description: 'Row key holding the column a cell sits in.',
+    required: true,
+    type: 'string'
+  },
+  {
+    name: 'y',
+    description: 'Row key holding the row a cell sits in.',
+    required: true,
+    type: 'string'
+  },
+  {
+    name: 'value',
+    description: 'Row key holding the magnitude the cell is colored by.',
+    required: true,
+    type: 'string'
+  },
+  {
+    name: 'min',
+    description: 'Bottom of the color scale. Defaults to 0 when no value is negative, else to\nthe smallest value in the data.',
+    required: false,
+    type: 'number'
+  },
+  {
+    name: 'max',
+    description: 'Top of the color scale. Defaults to the largest value in the data.',
+    required: false,
+    type: 'number'
+  },
+  {
+    name: 'xAxis',
+    description: 'The columns of the grid: the axis under it, and the tooltip head.',
+    required: false,
+    type: 'HeatmapAxisOptions'
+  },
+  {
+    name: 'yAxis',
+    description: 'The rows of the grid: the axis beside it, and the tooltip head.',
+    required: false,
+    type: 'HeatmapAxisOptions'
+  },
+  {
+    name: 'showDataLabels',
+    description: 'Prints each cell\'s value inside it. A label that would collide with its\nneighbour is dropped, so a grid too fine to carry numbers shows none.',
+    required: false,
+    type: 'boolean'
+  },
+  {
+    name: 'format',
+    description: 'Prints every number the grid shows: the cells, the scale ends, the tooltip.',
+    required: false,
+    type: 'ChartValueFormatter'
+  },
+  {
+    name: 'palette',
+    description: 'Ramp cells are colored from. Defaults to `\'sequential\'`, which is what a\nmagnitude reads as; `\'diverging\'` is for signed data and centers on zero.',
+    required: false,
+    type: 'HeatmapPalette'
+  },
+  {
+    name: 'echartOptions',
+    description: 'Escape hatch: deep-merged into the echarts option the props built.',
+    required: false,
+    type: 'EchartOptionsOverride'
+  }
+]
+
+  const slotsData = [
+  {
+    name: 'loading',
+    description: 'Replaces the whole placeholder, e.g. with a skeleton of the app\'s own.',
+    type: 'any'
+  },
+  {
+    name: 'error',
+    description: 'Replaces the message, e.g. to put a retry button beside it.',
+    type: '{ error?: string | null | undefined; }'
+  },
+  {
+    name: 'empty',
+    description: 'Replaces the "no data" line, e.g. with a hint about the filters.',
+    type: 'any'
+  },
+  {
+    name: 'actions',
+    description: '',
+    type: 'any'
+  },
+  {
+    name: 'title-suffix',
+    description: 'A mark right after the title, on the same line. The title truncates\naround it and it keeps its width. It renders in the title\'s font size, so\ncontent sized in `em` is smaller on a NumberCard than on a chart.',
+    type: 'any'
+  },
+  {
+    name: 'tooltip',
+    description: 'Replaces the tooltip body. `items` holds the hovered cell alone, and\n`rows` the row behind it, so a body can read a column the grid never drew.',
+    type: 'ChartTooltipSlotProps'
+  }
+]
+
+  const emitsData = [
+  {
+    name: 'select',
+    description: 'A cell was selected, by click or by Enter on the keyboard cursor. Carries\nboth its categories and the row behind it.',
+    type: '[event: HeatmapCellEvent]'
+  }
+]
+
+  const exposedData = [
+  {
+    name: 'chart',
+    description: 'The echarts instance, once the plot has a size to initialise into.',
+    type: 'EChartsType | undefined'
+  }
+]
+```

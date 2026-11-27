@@ -1,18 +1,28 @@
 # What frappe-ui ships
 
-Every public name in the library, grouped by the entry point that exports it.
+Every public component, composable and helper in the library, grouped by the
+entry point that exports it. (Exported TypeScript types are not listed.)
 Use this to pick a component; then read its entry in [CORE.md](CORE.md) before
-writing props. `frappe-ui` (the root) is the default import. Anything on another
-subpath does not resolve from the root.
+writing props. For the bundled upstream usage and API page, see [CATALOG.md](CATALOG.md).
+
+**Path rule.** A name belongs to exactly one path: the section it appears under
+is its import path. `frappe-ui` (the root) is the default. The subpath families
+are separate entry points — a name from `frappe-ui/list` does not resolve from
+the root, and a root name does not resolve from `frappe-ui/list`.
 
 ## Root: `frappe-ui`
+
+```js
+import { Button, Dialog, FormControl, useCall } from 'frappe-ui'
+```
 
 **Display.** `Alert` inline notice · `Avatar` image or initials · `Badge` status
 pill · `Divider` rule · `Duration` duration field · `ErrorMessage` inline error ·
 `Icon` one lucide/emoji/component glyph · `ItemListRow` listbox row primitive ·
 `LoadingText` spinner + label · `Progress` linear bar · `Rating` stars ·
-`Skeleton` load placeholder · `Spinner` busy indicator · `Toast` (via `toast.*`,
-not a component) · `Tooltip` hover hint.
+`Skeleton` load placeholder · `Spinner` busy indicator (`LoadingIndicator` is
+its older alias) · `Toast` (via `toast.*`, not a component) · `Tooltip` hover
+hint.
 
 **Actions.** `Button` every trigger · `Dropdown` action menu · `ContextMenu`
 right-click menu · `TabButtons` segmented control · `Tabs` content tabs ·
@@ -30,6 +40,8 @@ the root for both `dialog.*` and `toast.*`.
 `RadioGroup` · `Switch` · `Slider` · `DatePicker` / `DateRangePicker` /
 `DateTimePicker` / `TimePicker` · `FileUploader` (Frappe upload, no label).
 
+**Providers and app-wide state.** `FrappeUIProvider` (mount once; renders the dialog and toast portals) · `ToastProvider` (rendered by it) · `Dialogs` (the imperatively opened dialog host) · `TooltipProvider` (groups tooltips so the skip-delay is shared) · `FrappeUI` app plugin · `toast`, `dialog`, `setConfig` / `getConfig`.
+
 **Navigation and layout.** `DesktopShell` (slots `#rail` `#sidebar`) ·
 `MobileShell` (slots default `#nav`) · `MobileNav` / `MobileNavItem` ·
 `PageHeader` + `PageHeaderBase` / `PageHeaderTitle` / `PageHeaderMobile` /
@@ -37,7 +49,9 @@ the root for both `dialog.*` and `toast.*`.
 shell's `PageHeaderTarget`) · `Sidebar` family (`SidebarHeader`,
 `SidebarSection`, `SidebarLabel`, `SidebarItem`, `SidebarCollapseToggle`,
 `SidebarCard`) · `SidebarRail` / `SidebarRailItem` · `ScrollArea` ·
-`Breadcrumbs` · `Tree` hierarchical list.
+`Breadcrumbs` · `Tree` hierarchical list · `SettingsDialog` family
+(`SettingsSidebar`, `SettingsNavGroup`, `SettingsNavItem`, `SettingsContent`,
+`SettingsPanel`, `SettingsHeader`, `SettingsBody`, `SettingsRow`).
 
 **Data and state.** `useCall`, `useDoc`, `useList`, `useDoctype`, `useNewDoc`
 ([DATA.md](DATA.md)) · legacy `createResource` / `createListResource` /
@@ -50,11 +64,19 @@ shell's `PageHeaderTarget`) · `Sidebar` family (`SidebarHeader`,
 
 ## `frappe-ui/list`
 
+```js
+import { List, ListHeader, ListHeaderCell, ListRows, ListRow, ListCell } from 'frappe-ui/list'
+```
+
 `List` (feed by default, table with `:columns`) · `ListHeader` ·
 `ListHeaderCell` · `ListHeaderCellSort` · `ListRows` · `ListRow` · `ListCell` ·
 `ListGroup` · `ListRowBase`. Details in [CORE.md](CORE.md#list-family-frappe-uilist).
 
 ## `frappe-ui/charts`
+
+```js
+import { BarChart, NumberCard } from 'frappe-ui/charts'
+```
 
 `BarChart`, `LineChart`, `AreaChart`, `DonutChart`, `PercentageBarChart`,
 `FunnelChart`, `HeatmapChart`, `CalendarHeatmapChart`, `ScatterChart`,
@@ -64,12 +86,21 @@ shell's `PageHeaderTarget`) · `Sidebar` family (`SidebarHeader`,
 
 ## `frappe-ui/editor`
 
+```js
+import { Editor, EditorContent, RichTextKit, Bold } from 'frappe-ui/editor'
+```
+
 `Editor` (renderless, TipTap) + `EditorContent`, `EditorFixedMenu`,
-`EditorBubbleMenu`, kits `RichTextKit` / `CommentKit` / `InlineKit`, menu items
+`EditorBubbleMenu`, `EditorFloatingMenu`, `EditorTableMenu`, `EditorDropZone`,
+kits `RichTextKit` / `CommentKit` / `InlineKit`, menu items
 (`Bold`, `Italic`, `HeadingGroup`, `InsertLink`, …) and presets (`minimalToolbar`,
 `commentToolbar`, `articleToolbar`, `tableToolbar`).
 
 ## `frappe-ui/code-editor`
+
+```js
+import { CodeEditor, CodeEditorContent, CodeKit, loadLanguage } from 'frappe-ui/code-editor'
+```
 
 `CodeEditor` (renderless, CodeMirror 6) + `CodeEditorContent`, engine
 `useCodeEditor`, extension bundle `CodeKit`, single extensions `codeChrome` /
@@ -77,6 +108,10 @@ shell's `PageHeaderTarget`) · `Sidebar` family (`SidebarHeader`,
 `@codemirror/lang-*` peers. There is no labeled code field — build one.
 
 ## `frappe-ui/experimental` — unstable, no deprecation promise
+
+```js
+import { CommandPalette, CommandPaletteItem, Stepper } from 'frappe-ui/experimental'
+```
 
 `Accordion` collapsible sections · `Stepper` ordered progress (with sub-steps) ·
 `ThemeSwitcher` light/dark/system preview cards (deprecated: `Select` +

@@ -35,6 +35,12 @@ lets a wrong instruction score as a pass.
 
 ## Running
 
+The runner below was written for the Claude Code `Workflow` tool. On another
+harness, keep the same three steps (one source-blind builder per case, then
+graders that read only the library source) and map them onto that harness's
+subagent tool; changing the builder's blindness or prompt invalidates the
+numbers.
+
     Workflow({
       scriptPath: 'skills/frappe-ui/evals/run.workflow.js',
       args: { repo: '<abs path to the frappe-ui checkout>',

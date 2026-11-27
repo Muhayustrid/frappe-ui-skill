@@ -1,8 +1,28 @@
 # frappe-ui core reference
 
-Component APIs, design tokens and page composition. When this file does not answer a prop, slot or option question, read the shipped source before guessing: the npm package includes all of `src/`. `node_modules/frappe-ui/src/components/<Name>/` holds `types.ts`, a generated `<Name>.api.md` prop/slot/emit table, and `stories/*.vue`; the chart tables sit in `src/charts/docs/*.api.md` and the molecules under `src/molecules/<family>/`. Grep for the name if the path does not match. Read these from disk; do not import from `frappe-ui/src/*`, which the `exports` map blocks. With no `node_modules` on disk, fetch https://ui.frappe.io/llms.txt. Copy an existing Frappe app (Gameplan, CRM, Helpdesk, Drive, Insights) rather than invent.
+Component APIs, design tokens and page composition. When this file does not answer a prop, slot or option question, read the shipped source before guessing: the npm package includes all of `src/`. `node_modules/frappe-ui/src/components/<Name>/` holds `types.ts`, a generated `<Name>.api.md` prop/slot/emit table, and `stories/*.vue`; the chart tables sit in `src/charts/docs/*.api.md` and the molecules under `src/molecules/<family>/`. Grep for the name if the path does not match. Read these from disk; do not import from `frappe-ui/src/*`, which the `exports` map blocks. With no `node_modules` on disk, open the matching offline page in [CATALOG.md](CATALOG.md). Copy an existing Frappe app (Gameplan, CRM, Helpdesk, Drive, Insights) rather than invent.
 
-Import from `'frappe-ui'`. Five families ship on their own subpaths: `frappe-ui/list`, `frappe-ui/editor`, `frappe-ui/code-editor`, `frappe-ui/charts`, `frappe-ui/experimental`. [INDEX.md](INDEX.md) is the complete list of what each one exports; use it to pick a name, then read the entry here.
+Every name imports from `'frappe-ui'` unless it belongs to one of the five subpath families: `frappe-ui/list`, `frappe-ui/editor`, `frappe-ui/code-editor`, `frappe-ui/charts`, `frappe-ui/experimental`. [INDEX.md](INDEX.md) is the complete list of what each one exports; use it to pick a name, then read the entry here. [SKILL.md](SKILL.md) says which version this file covers.
+
+## Contents
+
+| Section | Read it when |
+|---|---|
+| [Tokens](#tokens) | colour, type, radius, shadow, dark mode, styling past the props |
+| [Icons](#icons) | any icon, or an `icon` prop, or an icon-only button |
+| [Page anatomy](#page-anatomy) | shell, sidebar, header, mobile, empty state, page archetypes, geometry |
+| [Actions](#actions) | `Button`, `Dropdown`, `ContextMenu` |
+| [Overlays](#overlays) | `Dialog`, imperative dialogs, toasts, `Popover`, `Tooltip`, `HoverCard` |
+| [Input controls](#input-controls) | `FormControl` and every field, plus the shared label contract |
+| [Display](#display) | `Badge`, `Alert`, `Avatar`, `Progress`, spinners, `Tabs`, shortcuts |
+| [`List` family](#list-family-frappe-uilist) | any list, table or feed |
+| [`Tree`](#tree) | hierarchical lists |
+| [`Editor`](#editor-frappe-uieditor) | rich text (TipTap) |
+| [`CodeEditor`](#codeeditor-frappe-uicode-editor) | code, JSON or query fields (CodeMirror) |
+| [`CommandPalette`](#commandpalette-frappe-uiexperimental) | a Cmd-K switcher |
+| [Other experimental families](#other-experimental-families) | `Accordion`, `Stepper`, `Calendar`, v0 names |
+| [Charts and Calendar](#charts-and-calendar) | charts, KPI tiles, `Calendar` |
+| [Names that moved](#names-that-moved) | a name you remember from 0.x does not resolve |
 
 ## Tokens
 
@@ -151,8 +171,40 @@ Desktop → mobile: sidebar → `BottomSheet`; persistent nav → `MobileNav` ta
 | **Board** | Track `overflow-x-auto`; columns `w-72 shrink-0 rounded-6 bg-surface-gray-1`, each with its own `ScrollArea`; cards `rounded-6 border bg-surface-elevation-1 p-3` |
 | **Compose / editor** | Focused page, no sidebar; `Editor` + `EditorFixedMenu` + `EditorContent` from `frappe-ui/editor`; prose column `max-w-[770px]` |
 | **Detail + meta panel** | Its own route with the id as a route param (list ↔ detail is two routes); content column + right panel `w-[20rem] shrink-0 border-l` of label/control rows |
-| **Settings** | `SettingsDialog`: `SettingsNavGroup` nav → header + body → `space-y-11 pt-6` sections → `divide-y divide-outline-gray-1` of `SettingsRow` |
+| **Settings** | `SettingsDialog` (family below): nav sidebar + one panel per tab; sections `space-y-11 pt-6`, rows `divide-y divide-outline-gray-1` |
 | **Dashboard** | Centered `max-w-4xl space-y-6`; KPI strip of `NumberCard`s from `frappe-ui/charts`, charts below in a grid, each sized by its wrapper |
+
+### `SettingsDialog` family
+
+A settings surface: dialog shell, nav sidebar, one panel per tab. Give each
+`SettingsNavItem` and its `SettingsPanel` the same `value`.
+
+```vue
+<SettingsDialog v-model:open="open" v-model:tab="tab">
+  <SettingsSidebar>
+    <SettingsNavGroup label="User settings">
+      <SettingsNavItem value="profile">Profile</SettingsNavItem>
+      <SettingsNavItem value="notifications">Notifications</SettingsNavItem>
+    </SettingsNavGroup>
+  </SettingsSidebar>
+  <SettingsContent>
+    <SettingsPanel value="profile">…</SettingsPanel>
+    <SettingsPanel value="notifications">
+      <SettingsHeader title="Notifications" />
+      <SettingsBody>
+        <SettingsRow title="Email digests" description="A summary of missed activity.">
+          <Switch v-model="digest" />
+        </SettingsRow>
+      </SettingsBody>
+    </SettingsPanel>
+  </SettingsContent>
+</SettingsDialog>
+```
+
+- `SettingsDialog` — `v-model:open`, optional `v-model:tab` (`string | number`; unbound, it tracks the selection itself), `size` (a `Dialog` size, default `4xl`), `keyboardShortcut` (default `Mod+Shift+,`; `false` turns it off), `unmountOnHide` (default `true`). Slots `#title` / `#description` are visually hidden accessible names.
+- `SettingsSidebar` > `SettingsNavGroup label` > `SettingsNavItem :value` (slots `#default` for the label, `#prefix`, `#suffix`).
+- `SettingsContent` > `SettingsPanel :value` > `SettingsHeader` (`title`, `description`, `#actions`) + `SettingsBody` (the scroll region) > `SettingsRow` (`title` required, `description`, `labelFor`).
+- `SettingsBody` exposes `viewportElement` when the app needs to scroll it.
 
 ## Actions
 
@@ -198,7 +250,7 @@ Menu of actions anchored to a trigger. `Dropdown`'s default slot (or `#trigger`)
 
 - `actions` is an array of `ButtonProps` plus `onClick(ctx)`, where `ctx` is `{ close }`.
 - `theme` colors the icon: `icon="lucide-trash-2" theme="red"`. `DialogTheme` is `amber | blue | red | green`.
-- `bare` drops the padded card, the auto-header and the auto-actions (full-bleed content).
+- `bare` drops the padded card, the auto-header and the auto-actions (full-bleed content); a bare dialog still needs `Dialog.Title` (and optionally `Dialog.Description` / `Dialog.Close`) inside the default slot for its accessible name and close control.
 
 ### Imperative dialogs and toasts
 
@@ -227,7 +279,7 @@ dialog.prompt({
 ### `Popover` / `Tooltip` / `HoverCard`
 
 - `Popover` — arbitrary anchored content. `v-model:open`, `side`, `align`, `offset`, `bare`, `portalTo`. Trigger in `#trigger`, content in the default slot.
-- `Tooltip` — hover hints: `<Tooltip text="Rename"><Button icon="lucide-pencil" /></Tooltip>`. Props `text`, `side`, `offset`, `hoverDelay` (milliseconds), `bare`, `disabled`; rich content goes in `#content`. Anything clickable belongs in `Popover` or `Dropdown` instead.
+- `Tooltip` — hover hints: `<Tooltip text="Rename"><Button icon="lucide-pencil" /></Tooltip>`. Props `text`, `side`, `offset`, `hoverDelay` (milliseconds), `bare`, `disabled`; rich content goes in `#content`. Anything clickable belongs in `Popover` or `Dropdown` instead. Wrap a cluster of tooltip triggers in `TooltipProvider` so the skip-delay is shared between neighbours.
 - `HoverCard` — hover-revealed rich previews (person cards, deal owners). `#trigger` plus the default slot.
 
 ## Input controls
@@ -238,7 +290,22 @@ Text-family sizes are `xs | sm | md | lg` (`InputSize`) — fixed single-line he
 
 ### `FormControl`
 
-The default for a labeled field, and a dispatcher: `type` picks the child component. Values are any `TextInputTypes` value (`text`, `email`, `number`, `password`, `search`, `tel`, `url`, `date`, `datetime-local`, `time`, `month`, `week`, `file`, `range`) plus `textarea`, `select`, `checkbox`, `combobox`, `multiselect`, `date`, `daterange`, `datetime`, `time`. Its own props are `label`, `description`, `error`, `required`, `size` (the full `InputSize` scale; `lg` clamps to `md` for `type="checkbox"`), `variant` (`subtle | outline`); type-specific props and the `v-model` shape follow the child component, so read that entry. Reach for a bare `TextInput` only inside a control you compose yourself.
+The default for a labeled field, and a dispatcher: `type` picks the child component from the table below. `label`, `description`, `error`, `required`, `size` and `variant` are its own props; every other prop (`options`, `placeholder`, `debounce`, …) is forwarded to that child, so read the child's entry for them. `size` takes the full `InputSize` scale, but `lg` clamps to `md` for `type="checkbox"`. Reach for a bare `TextInput` only inside a control you compose yourself.
+
+| `type` | Renders | `v-model` |
+|---|---|---|
+| `text` (default), `email`, `number`, `password`, `search`, `tel`, `url`, `datetime-local`, `month`, `week`, `range` | `TextInput` | `string \| number` |
+| `textarea` | `Textarea` | `string` |
+| `select` | `Select` | `string \| number \| null` |
+| `combobox` | `Combobox` | `string \| number \| null`, plus optional `v-model:query` |
+| `multiselect` | `MultiSelect` | `(string \| number)[]`, plus optional `v-model:query` |
+| `checkbox` | `Checkbox` | `boolean` |
+| `date` | `DatePicker` | `string` |
+| `daterange` | `DateRangePicker` | `[string, string] \| []` |
+| `datetime` | `DateTimePicker` | `string` |
+| `time` | `TimePicker` | `string` |
+
+`type="autocomplete"` was removed in `1.0.0` and is the one silent break in the set: it falls through to `TextInput` and forwards `type="autocomplete"`, so the browser renders a plain text box and only a dev-mode console error says so. Use `type="combobox"`.
 
 ```vue
 <form class="mx-auto max-w-xl space-y-4 p-6" @submit.prevent="save">
@@ -316,7 +383,7 @@ The parts:
 - `ListRows` — props `{ items: T[], rowKey?: string | ((item, index) => PropertyKey), virtual?: boolean, overscan?: number }`. Height comes from `List.rowHeight`. Its scoped slot gives `{ item, index, value, selected, active }`. `rowKey` defaults to the item's `name`, then `id`, then the index.
 - `ListCell` — default slot only.
 - `ListHeaderCell` — **the column label goes in the default slot**, not a prop. Optional `#prefix` / `#suffix`.
-- `ListHeaderCellSort` — props `{ direction?: 'asc' | 'desc' | null, align?: 'start' | 'end' }`, emits `click`, label in the default slot, scoped `#sort-indicator="{ direction }"` for a custom glyph. It is controlled: sort state and comparators are app code; `align="end"` keeps the indicator on the leading edge.
+- `ListHeaderCellSort` — props `{ direction?: 'asc' | 'desc' | null, align?: 'start' | 'end' }`, emits `click`, label in the default slot, scoped `#sort-indicator="{ direction }"` for a custom glyph. It is controlled: sort state and comparators are app code; `align="end"` keeps the indicator on the leading edge. Sorting feeds `useList`'s `orderBy` — [DATA.md](DATA.md) shows the typed reactive pattern.
 - `ListHeader` — default slot holds the header cells. Its presence flips the list into table semantics; there is no mode prop.
 - `ListGroup` — props `{ label?: string, sticky?: boolean }`, slots `#label` and default.
 - `ListRowBase` hooks — `data-state="active|inactive"`; boolean `data-selected` and `data-interactive`. Active and selected are independent.
@@ -372,7 +439,7 @@ const toolbar = [HeadingGroup, Separator, Bold, Italic, InsertLink]
 </template>
 ```
 
-`EditorFixedMenu` / `EditorBubbleMenu` / `EditorContent` take `editor` optionally — inside `<Editor>` they fall back to the provided context — but `items` is required on the menus.
+`EditorFixedMenu` / `EditorBubbleMenu` / `EditorContent` take `editor` optionally — inside `<Editor>` they fall back to the provided context — but `items` is required on the menus. `EditorFloatingMenu`, `EditorTableMenu` and `EditorDropZone` ship from the same subpath for compose-your-own layouts and drag-and-drop.
 
 `items` is a `MenuItem[]` of **objects**, never strings. Three shapes: a command item `{ icon?, label, action(editor), isActive?, isDisabled?, getLabel?, component?, isAvailable? }`; a group `{ type: 'group', label, items: [...] }`; and the literal separator `{ type: 'separator' }`. Import the ready-made ones from `frappe-ui/editor`: `Bold`, `Italic`, `Strike`, `InlineCode`, `BulletList`, `OrderedList`, `Blockquote`, `Paragraph`, `H1`…`H6`, `HeadingGroup`, `AlignLeft`, `AlignCenter`, `AlignRight`, `FontColor`, `FontHighlight`, `InsertImage`, `InsertVideo`, `InsertAttachment`, `InsertLink`, `InsertIframe`, `InsertTable`, `HorizontalRule`, `Undo`, `Redo`, `Separator`, and the `Table*` / `CellColor` items. Whole presets ship too: `minimalToolbar`, `commentToolbar`, `articleToolbar`, `tableToolbar`. Items whose extension is absent prune themselves, so one preset works across kits.
 
